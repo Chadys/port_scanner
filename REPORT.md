@@ -15,6 +15,9 @@ Je ne suis volontairement pas allée consulter le code source de ces paquets.
 
 ## Respect des spécifications
 
+### Utilisation de `nmap`
+L'utilisation du module `subprocess` me paraît adapté.
+
 ### Arguments
 Les arguments devant être acceptés comme cibles sont de manière commode les mêmes qui sont accepté par `nmap`.
 En revanche, l'option `-iL` doit être passée lorsque la liste de cible provient d'un fichier.
@@ -23,12 +26,12 @@ Elle permettra également d'éviter la valeur spéciale `-` en tant que nom de f
 pour lui indiquer d'utiliser l'input standard plutôt qu'un fichier, comportement dont nous ne voulons pas.
 
 ### Affichage de la progression et du résumé
-Sans option, `map` affiche un certains nombre de résultats pertinents au fur et à mesure qu'il les obtient (détection de ports ouverts notamment).
+Sans option, `nmap` affiche un certains nombre de résultats pertinents au fur et à mesure qu'il les obtient (détection de ports ouverts notamment).
 L'option verbose `-v` permet d'afficher encore plus d'information, comme l'estimation du temps restant, qui me parait très important à fournir.
-Le retour de `map` me paraissant bien, j'ai choisi de simplement procéder à une redirection de sa sortie sur celle du script Python.
+Le retour de `nmap` me paraissant bien, j'ai choisi de simplement l'afficher directement.
 
 ### Production du HTML
-`map` permet d'obtenir directement une sortie en XML.
+`nmap` permet d'obtenir directement une sortie en XML.
 - `--webxml` or `--stylesheet` (%D used in filename to add date)
 Run the XML file through an XSLT processor such as xsltproc to produce an HTML file
 
@@ -66,7 +69,7 @@ Voici les options que j'ai retenues, bien que j'ai conscience que chacune pourra
   Cette option va elle-même [influencer les options de plus bas-niveau](https://nmap.org/book/performance-timing-templates.html#tbl-performance-timing-template-values)
   et elle me paraissait être un bon compromis pour rester le plus générique possible sans trop sacrifier les performances.
   
-- --resolve-all
+- `--resolve-all`
   
   Permet de scanner toutes les adresses IP correspondant à un hostname, plutôt que simplement la première.
   J'ai choisi d'inclure cette option au cas où, à défaut de connaître le comportement désiré.
@@ -99,6 +102,7 @@ j'ai choisi une liste un peu plus étoffée de celle utilisée par défaut : `-P
 Python 2 n'étant officiellement plus supporté depuis le 1er janvier 2020, et Python 3 étant la norme depuis maintenant pas mal d'années,
 fait que dans mes années de développement je n'ai jamais codé que sous Python 3.
 L'exigence de compatibilité avec les deux versions m'a demandé un travail supplémentaire non négligeable d'ajustement.
+`subprocess.run` > 3.5
 
 ### Arguments
 Il aurait été compliqué de faire une méthode de validation qui puisse distinguer de manière fiable un hostname d'un fichier.

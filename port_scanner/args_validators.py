@@ -21,7 +21,7 @@ class SimplerFileType(argparse.FileType):
             raise argparse.ArgumentTypeError(message % (string, e))
 
 
-def host_target(arg_value):
+def host_target_type(arg_value):
     """
     Check that given value can actually be a valid hostname, ipv4, ipv6 or cidr notation
     """
@@ -61,7 +61,7 @@ class TargetArgumentParser(argparse.ArgumentParser):
         group = self.add_mutually_exclusive_group(required=True)
         group.add_argument(
             "targets",
-            type=host_target,
+            type=host_target_type,
             nargs="*",
             default=[],
             help="one or more hostname / ipv4 / ipv6 / cidr",
