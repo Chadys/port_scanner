@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from port_scanner import PortScanner
 from port_scanner.args_validators import TargetArgumentParser
 

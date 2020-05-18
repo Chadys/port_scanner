@@ -28,12 +28,22 @@ pour lui indiquer d'utiliser l'input standard plutôt qu'un fichier, comportemen
 ### Affichage de la progression et du résumé
 Sans option, `nmap` affiche un certains nombre de résultats pertinents au fur et à mesure qu'il les obtient (détection de ports ouverts notamment).
 L'option verbose `-v` permet d'afficher encore plus d'information, comme l'estimation du temps restant, qui me parait très important à fournir.
-Le retour de `nmap` me paraissant bien, j'ai choisi de simplement l'afficher directement.
+Le désavantage et qu'il ajoute aussi des informations moins utiles comme les machines détectée comme hors ligne.
+Le retour de `nmap` me paraissant globalement bien, j'ai choisi de simplement l'afficher directement en le faisant hériter du `stdout` et `stderr` du process Python.
 
 ### Production du HTML
-`nmap` permet d'obtenir directement une sortie en XML.
-- `--webxml` or `--stylesheet` (%D used in filename to add date)
-Run the XML file through an XSLT processor such as xsltproc to produce an HTML file
+`nmap` permet d'obtenir directement une sortie en `XML` et fourni également une feuille de style `XLS`.
+Plutôt que de devoir écrire un générateur de `html`, j'ai choisi de profiter du travail qui a déjà été fait.
+Un exemple de commande pour produire ce fameux `html` nous est même [donné](https://nmap.org/book/output-formats-output-to-html.html#output-formats-html-permanent).
+J'ai comparé différent processeurs `XSLT` utilisables et voilà ce que j'ai trouvé :
+- `xsltproc`, installé de base sur la plupart des système Unix, binaire à lancer en ligne de commande
+- `libxslt`, bindings Python pour `xsltproc`, dépend de `libxml2`, instruction d'installation peu claires, nécessite à priori d'installer d'autre binaires
+- `lxml`, surcouche sur `libxslt` et `libxml2` mais fourni à priori un paquet `pip` qui les intégre et utilise bien leurs dernières versions, bien maintenu. Python 2.7 ou 3.4+.
+J'ai d'abord voulu tester `lxml`, qui offre l'avantage de pouvoir être indiqué en dépendance par le système de paquet Python.
+Mais les exemples pour s'en servir demande d'indiquer le chemin du fichier `XLS` séparemment (alors que l'attribut `xml-stylesheet` du `XML` est rempli)
+et nécessite, je trouve, trop de lignes de code comparé à la simplicité de la commande `xsltproc` équivalente.
+J'ai donc fait le choix de me servir à nouveau de `subprocess`, pour appeler simplement `xsltproc`.
+
 
 ### Performance vs Informations
 Le script demandé étant très générique, il m'a été difficile de choisir un bon compromis entre vitesse d'exécution et information récoltée.
@@ -114,15 +124,32 @@ J'ai ensuite trouvé le paquet `validators` qui a l'air correctement maintenu et
 Un mélange des deux m'a permis d'obtenir ce que je voulais, après un test de performance effectué avec timeit pour choisir lequel s'occuperait des ipv4-6.
 
 ### Exécution avec les droits root
-Afin de permettre à `nmap` certaines opérations, comme les scans SYN ou la détection d'OS, `nmap` doit être lancé avec les droits root sous Unix, 
-Windows user without Npcap installed 
-Windows administrator account recommended but can work if WinPcap loaded in the OS
+Afin de permettre à `nmap` certaines opérations, comme les scans SYN ou la détection d'OS, `nmap` doit être lancé avec les droits root sous Unix
+et doit sous Windows être lancé en tant qu'administrateur excepté si `Npcap` ou `WinPcap` a été installé et chargé par l'OS.
 Sans cela, `nmap` utilisera des contournement lorsqu'il le peut (comme d'utiliser un `connect` complet à la place du scan SYN),
 mais les performances, la furtivité et la complétude des informations sera impacté.
-TODO
+De plus, le fait d'avoir indiqué en dur le type de scan à faire (`-sS`) empêche `nmap` de choisir une alternative, ce qui est voulu.
+J'ai fait quelques recherches qui permettrait à l'utilisateur de lancer le script sans devoir indiquer en dur un niveau de permission,
+mais je n'ai pas trouvé de solution satisfaisante.
+J'ai exploré quelques pistes, notamment le bit setuid, mais cette solution, en plus de ne pas pouvoir fonctionner directement avec un script, n'est pas portable.
+J'ai préféré laisser l'utilisateur exécuter lui-même le script avec les droits utilisateurs selon la version de son système.
 
-## Temps passé
+## Étapes de développement
+- parsing des arguments
+- appel à `nmap`
+- production du html
+- revue et éventuel ajout de script NSE
+- identification de CVE potentielles
+- setup et readme
 
-## Pistes d'amélioration
+
+## Temps passé et performance
+
+### Vitesse d'exécution mesurée sur ma machine
+- Version classique sur scanme.nmap.org -> 197.59 seconds
+- Version accélérée sur scanme.nmap.org -> 28.95 seconds
+
+## Pistes d'évolution
+test compatibilité Windows
 -6
 todo spoof, decoy etc cover trace see https://nmap.org/book/man-bypass-firewalls-ids.html
