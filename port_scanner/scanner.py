@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import errno
 import os
 import subprocess
@@ -5,7 +8,7 @@ import sys
 
 
 class PortScanner:
-    xml_output_file_name = "scan.xml"
+    xml_output_file_name = "tmp_scan.xml"
     _deep_scan_options = [
         "-sSU",
         "-pT:-,U:631,161,137,123,138,1434,445,135,67,53,139,500,68,520,1900,4500,514,49152,162,69",
@@ -24,6 +27,10 @@ class PortScanner:
         "-PS80,443",  # rule to detect online host
         "-PA3389",  # rule to detect online host
         "-PU40125",  # rule to detect online host
+        "--script",  # extra NSE script
+        # infortunatelly `nmap --script-updatedb` doesn't work with subfolder,
+        # or else this wouldn't have been needed since both scripts have 'default' category
+        "vulscan,nmap-vulners",
         "-v",  # verbose
     ]
     _output_options = ["-oX", xml_output_file_name]
@@ -57,7 +64,8 @@ class PortScanner:
             "%s instance needs at least one target" % self.__class__.__name__
         )
 
-    def react_to_executable_not_found(self, exception_file_name, exe_name):
+    @staticmethod
+    def react_to_executable_not_found(exception_file_name, exe_name):
         if exception_file_name == exe_name:
             print(
                 "%s wasn't found on your system, did you correctly install it?"
@@ -72,7 +80,7 @@ class PortScanner:
             subprocess.check_call(self.command, shell=False)
         except subprocess.CalledProcessError as e:
             exit(e.returncode)
-        except FileNotFoundError as e:
+        except EnvironmentError as e:  # can't use FileNotFoundError because of Python 2.7 compatibility
             self.react_to_executable_not_found(e.filename, self._executable_name)
             raise e
         self.produce_html()

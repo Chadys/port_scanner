@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import argparse
 import ipaddress
 
@@ -10,15 +13,24 @@ class SimplerFileType(argparse.FileType):
     to prevent '-' value from being treated differently
     """
 
-    def __call__(self, string):
+    def __call__(self, filename):
         # just do the same thing as parent class, without '-' special case
         try:
-            return open(string, self._mode, self._bufsize, self._encoding, self._errors)
-        except OSError as e:
+            try:
+                with open(
+                    filename, self._mode, self._bufsize, self._encoding, self._errors
+                ):
+                    pass
+                return filename
+            except AttributeError:  # take care of Python 2
+                with open(filename, self._mode, self._bufsize):
+                    pass
+                return filename
+        except (OSError, IOError) as e:
             from gettext import gettext as _
 
             message = _("can't open '%s': %s")
-            raise argparse.ArgumentTypeError(message % (string, e))
+            raise argparse.ArgumentTypeError(message % (filename, e))
 
 
 def host_target_type(arg_value):

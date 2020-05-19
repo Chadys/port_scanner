@@ -1,5 +1,9 @@
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import argparse
 import re
+import sys
 
 import pytest
 
@@ -8,6 +12,14 @@ from port_scanner.args_validators import (
     host_target_type,
     TargetArgumentParser,
 )
+
+
+def get_dynamic_open_module_name():
+    if sys.version_info.major == 3:
+        builtin_module_name = "builtins"
+    else:
+        builtin_module_name = "__builtin__"
+    return builtin_module_name + ".open"
 
 
 def test_no_support_special_file():
@@ -64,7 +76,7 @@ def test_correct_several_arguments():
 
 
 def test_correct_file_argument(mocker):
-    mocker.patch("builtins.open")
+    mocker.patch(get_dynamic_open_module_name())
     parser = TargetArgumentParser()
     args = parser.parse_args(["-targets-file", "dummy-file.txt"])
     assert not args.fast
@@ -87,8 +99,14 @@ def test_incorrect_bad_argument(mocker):
     m.assert_any_call("unrecognized arguments: -incorrect")
 
 
+def test_incorrect_file_argument():
+    parser = TargetArgumentParser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["-targets-file", "dummy-file.txt"])
+
+
 def test_incorrect_both_argument(mocker):
-    mocker.patch("builtins.open")
+    mocker.patch(get_dynamic_open_module_name())
     m = mocker.patch.object(TargetArgumentParser, "error", side_effect=ValueError)
     parser = TargetArgumentParser()
     with pytest.raises(ValueError):

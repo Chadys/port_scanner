@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from .scanner import PortScanner
 from .args_validators import host_target_type
 
