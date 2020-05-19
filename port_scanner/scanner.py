@@ -91,7 +91,7 @@ class PortScanner:
             subprocess.check_call(self._html_generate_command, shell=False)
         except subprocess.CalledProcessError as e:
             exit(e.returncode)
-        except FileNotFoundError as e:
+        except EnvironmentError as e:  # can't use FileNotFoundError because of Python 2.7 compatibility
             self.react_to_executable_not_found(e.filename, self._html_executable_name)
             raise e
         try:
