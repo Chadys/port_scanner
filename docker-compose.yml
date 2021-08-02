@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  port_scanner:
+    build: .
+    image: port_scanner:dev
+    command: python -um port_scanner -targets-file /code/targets_list.txt
+    volumes:
+      - .:/code

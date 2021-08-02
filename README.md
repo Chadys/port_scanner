@@ -10,7 +10,7 @@ the goal of this tool is NOT to be a complete wrapper.
 For now this package is not available through `pip`, 
 you'll need to clone it and to install it locally with `pip install .`.
 
-## Dependencies
+### Dependencies
 You must have [`nmap`](https://nmap.org/book/install.html) (obviously) and [`xsltproc`](http://www.xmlsoft.org/XSLT/xsltproc.html) (for HTML generation) installed on your machine.
 Then you'll need to execute the following two commands:
 ```shell script
@@ -19,7 +19,11 @@ git clone https://github.com/scipag/vulscan <nmap_installation_folder>/scripts/v
 ```
 These scripts are used to improve the CVE detection capacities of `nmap`.
 
-## Python version
+### Docker (recommanded installation method)
+A [Dockerfile](Dockerfile) is also available for ease of containerised installation, 
+you won't need to install any dependency yourself if you use it.
+
+### Python version
 This tool is compatible with Python 2.7+
 
 ## Usage
@@ -33,18 +37,26 @@ sudo python -um port_scanner (-targets-file [TARGETS_FILE] | targets [targets ..
 - `--fast` make the scan quicker but less thorough.
 - `sudo` is needed to give `nmap` low-level packet control
 
-Instead, you can also launch the scan yourself (but you'll still need `sudo` to execute the python script):
+Instead, you can also launch the scan with your own script (but you'll still need `sudo` to launch the python interpreter):
 ```python
 from port_scanner import PortScanner
 
 PortScanner(targets=["scanme.nmap.org"], fast=False)()
 ```
 Notice the parentheses at the end.
-Don't forget to check for validity of targets argument if you get them from untrusted source; 
+Don't forget to check for validity of targets argument if you are getting them from untrusted source; 
 `port_scanner.args_validators.host_target_type` can be used to validate the items in `targets`.
 
+### Docker
+If you chose to use the recommended Docker installation, launching the script is really made simpler.
+You need to edit the [targets_list.txt](targets_list.txt) file, adding any target you want, and run
+```shell
+docker-compose up
+```
+You can add the `--fast` option to the command executed by the [docker-compose.yml](docker-compose.yml) file if you need to.
+
 ## Results
-Using the CLI or the `PortScanner` object directly, this tool will produce one file in your current directory: "scan.html".
+Using the CLI, the `PortScanner` object directly or the docker-compose, this tool will produce one file in your current directory: "scan.html".
 You can open this file in your favorite browser.
 If you get a "tmp_scan.xml" and no "scan.html", that probably means that you didn't install `xsltproc`, check your error messages.
 To retry the HTML file generation without redoing the whole scan, you can use this code (no need for `sudo` this time):
