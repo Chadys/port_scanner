@@ -44,8 +44,10 @@ class PortScanner:
         "scan.html",
     ]
 
-    def __init__(self, targets, targets_file=None, fast=False):
+    def __init__(self, targets, targets_file=None, fast=False, debug=False):
         scan_option = self._fast_scan_options if fast else self._deep_scan_options
+        if debug:
+            scan_option.append("-d")
         # self.command = [self._executable_name, *scan_option, *self._other_options, *self._output_options]
         # Python 2.7 compatible code instead
         self.command = (

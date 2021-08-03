@@ -29,19 +29,20 @@ This tool is compatible with Python 2.7+
 ## Usage
 This module can be used like an executable script from command line like so:
 ```shell script
-sudo python -um port_scanner (-targets-file [TARGETS_FILE] | targets [targets ...]) [--fast]
+sudo python -um port_scanner (-targets-file [TARGETS_FILE] | targets [targets ...]) [--fast] [--debug]
 ```
 - `targets` must be one or several hostname, ipv4, ipv6 or cidr
 - `TARGETS_FILE` must be a valid path to a file containing a list of hostname, ip or cidr
 - `targets` and `TARGETS_FILE` are mutually exclusive.
 - `--fast` make the scan quicker but less thorough.
+- `--debug` enable debug output.
 - `sudo` is needed to give `nmap` low-level packet control
 
 Instead, you can also launch the scan with your own script (but you'll still need `sudo` to launch the python interpreter):
 ```python
 from port_scanner import PortScanner
 
-PortScanner(targets=["scanme.nmap.org"], fast=False)()
+PortScanner(targets=["scanme.nmap.org"], fast=False, debug=True)()
 ```
 Notice the parentheses at the end.
 Don't forget to check for validity of targets argument if you are getting them from untrusted source; 
@@ -53,7 +54,7 @@ You need to edit the [targets_list.txt](targets_list.txt) file, adding any targe
 ```shell
 docker-compose up
 ```
-You can add the `--fast` option to the command executed by the [docker-compose.yml](docker-compose.yml) file if you need to.
+You can add the `--fast` and/or `--debug` option to the command executed by the [docker-compose.yml](docker-compose.yml) file if you need to.
 
 ## Results
 Using the CLI, the `PortScanner` object directly or the docker-compose, this tool will produce one file in your current directory: "scan.html".
@@ -64,7 +65,7 @@ To retry the HTML file generation without redoing the whole scan, you can use th
 from port_scanner import PortScanner
 
 # don't worry about the args here, just give it valid ones
-PortScanner(targets=["scanme.nmap.org"], fast=False).produce_html()
+PortScanner(targets=["scanme.nmap.org"]).produce_html()
 ```
 If you get BOTH a "tmp_scan.xml" and a "scan.html" files, you did some weird things and I can't help you.
 You can just delete the XML one if you don't want it.

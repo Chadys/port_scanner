@@ -70,6 +70,14 @@ class TargetArgumentParser(argparse.ArgumentParser):
             const=True,
             help="Enable faster scan but with fewer information collected",
         )
+        self.add_argument(
+            "--debug",
+            type=bool,
+            nargs="?",
+            default=False,
+            const=True,
+            help="Enable debug output",
+        )
         group = self.add_mutually_exclusive_group(required=True)
         group.add_argument(
             "targets",
